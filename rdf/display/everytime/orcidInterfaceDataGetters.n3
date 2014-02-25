@@ -10,4 +10,4 @@
 foaf:Person display:hasDataGetter display:orcidIdDataGetter .
 
 display:orcidIdDataGetter
-    a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.OrcidIdDataGetter> .
+    a <java:edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter> .
