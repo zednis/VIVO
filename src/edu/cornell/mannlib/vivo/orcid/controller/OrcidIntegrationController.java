@@ -15,7 +15,9 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.cornell.mannlib.orcidclient.context.OrcidClientContext;
 import edu.cornell.mannlib.orcidclient.context.OrcidClientContext.Setting;
+import edu.cornell.mannlib.vitro.webapp.auth.requestedAction.Actions;
 import edu.cornell.mannlib.vitro.webapp.controller.VitroRequest;
+import edu.cornell.mannlib.vitro.webapp.controller.authenticate.LogoutRedirector;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.FreemarkerHttpServlet;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.ExceptionResponseValues;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.ResponseValues;
@@ -32,7 +34,8 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 	private final static String PATHINFO_READ_PROFILE = "/readProfile";
 	private final static String PATHINFO_ADD_EXTERNAL_IDS = "/addExternalIds";
 
-	final static String PATH_DEFAULT = "/orcid";
+	public final static String PATH_DEFAULT = "orcid";
+
 	final static String PATH_START_CONFIRMATION = path(PATHINFO_START_CONFIRMATION);
 	final static String PATH_READ_PROFILE = path(PATHINFO_READ_PROFILE);
 	final static String PATH_ADD_EXTERNAL_IDS = path(PATHINFO_ADD_EXTERNAL_IDS);
@@ -62,21 +65,30 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 	}
 
 	/**
+	 * We return AUTHORIZED here, but we want the LogoutRedirector to know that
+	 * the user should not remain on this page after logging out.
+	 */
+	@Override
+	protected Actions requiredActions(VitroRequest vreq) {
+		LogoutRedirector.recordRestrictedPageUri(vreq);
+		return Actions.AUTHORIZED;
+	}
+
+	/**
 	 * Look at the path info and delegate to a handler.
 	 */
 	@Override
 	protected ResponseValues processRequest(VitroRequest vreq) throws Exception {
 		try {
 			String pathInfo = vreq.getPathInfo();
-			log.debug("Path info: "+ pathInfo);
-			switch (pathInfo) {
-			case PATHINFO_START_CONFIRMATION:
+			log.debug("Path info: " + pathInfo);
+			if (PATHINFO_START_CONFIRMATION.equals(pathInfo)) {
 				return new OrcidStartConfirmationHandler(vreq).exec();
-			case PATHINFO_READ_PROFILE:
+			} else if (PATHINFO_READ_PROFILE.equals(pathInfo)) {
 				return new OrcidReadProfileHandler(vreq).exec();
-			case PATHINFO_ADD_EXTERNAL_IDS:
+			} else if (PATHINFO_ADD_EXTERNAL_IDS.equals(pathInfo)) {
 				return new OrcidAddExternalIdsHandler(vreq).exec();
-			default:
+			} else {
 				return new OrcidDefaultHandler(vreq).exec();
 			}
 		} catch (Exception e) {

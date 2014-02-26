@@ -21,9 +21,11 @@ import edu.cornell.mannlib.vitro.webapp.auth.identifier.RequestIdentifiers;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.common.HasProfile;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.common.IsRootUser;
 import edu.cornell.mannlib.vitro.webapp.controller.VitroRequest;
+import edu.cornell.mannlib.vitro.webapp.controller.freemarker.UrlBuilder;
 import edu.cornell.mannlib.vitro.webapp.utils.SparqlQueryRunner;
 import edu.cornell.mannlib.vitro.webapp.utils.SparqlQueryRunner.QueryParser;
 import edu.cornell.mannlib.vitro.webapp.utils.dataGetter.DataGetter;
+import edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController;
 
 /**
  * This data getter should be assigned to the template that renders the list
@@ -50,8 +52,8 @@ public class OrcidIdDataGetter implements DataGetter {
 
 	private static final Map<String, Object> EMPTY_RESULT = Collections
 			.emptyMap();
-	private static final String ORCID_ID = "http://vivoweb.org/ontology/core#orcidId";
-	private static final String ORCID_IS_VALIDATED = "http://vivoweb.org/ontology/core#validatedOrcidId";
+	public static final String ORCID_ID = "http://vivoweb.org/ontology/core#orcidId";
+	public static final String ORCID_IS_VALIDATED = "http://vivoweb.org/ontology/core#validatedOrcidId";
 	private static final String QUERY_TEMPLATE = "SELECT ?orcid ?validated \n"
 			+ "WHERE { \n" //
 			+ "    <%s> <%s> ?orcid . \n" //
@@ -76,7 +78,7 @@ public class OrcidIdDataGetter implements DataGetter {
 
 			boolean isAuthorizedToValidate = figureIsAuthorizedtoValidate(individualUri);
 			List<OrcidInfo> orcids = runSparqlQuery(individualUri);
-			return buildMap(isAuthorizedToValidate, orcids);
+			return buildMap(isAuthorizedToValidate, orcids, individualUri);
 		} catch (Exception e) {
 			log.warn("Failed to get orcID information", e);
 			return EMPTY_RESULT;
@@ -121,14 +123,17 @@ public class OrcidIdDataGetter implements DataGetter {
 	}
 
 	private Map<String, Object> buildMap(boolean isAuthorizedToValidate,
-			List<OrcidInfo> orcids) {
+			List<OrcidInfo> orcids, String individualUri) {
 		Map<String, Boolean> validationMap = new HashMap<>();
-		for (OrcidInfo oInfo: orcids) {
+		for (OrcidInfo oInfo : orcids) {
 			validationMap.put(oInfo.getOrcid(), oInfo.isValidated());
 		}
-		
+
 		Map<String, Object> orcidInfoMap = new HashMap<>();
 		orcidInfoMap.put("authorizedToValidate", isAuthorizedToValidate);
+		orcidInfoMap.put("orcidUrl", UrlBuilder.getUrl(
+				OrcidIntegrationController.PATH_DEFAULT, "individualUri",
+				individualUri));
 		orcidInfoMap.put("orcids", validationMap);
 
 		Map<String, Object> map = new HashMap<>();

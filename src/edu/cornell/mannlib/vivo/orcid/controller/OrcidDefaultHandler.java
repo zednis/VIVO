@@ -67,10 +67,8 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 		Map<String, Object> map = new HashMap<>();
 		map.put("title", "400 Bad Request");
 		map.put("errorMessage", e.getMessage());
-		TemplateResponseValues rv = new TemplateResponseValues(
-				"error-titled.ftl", map);
-		rv.setStatusCode(SC_BAD_REQUEST);
-		return rv;
+		return new TemplateResponseValues("error-titled.ftl", map,
+				SC_BAD_REQUEST);
 	}
 
 	private boolean isAuthorized() {
@@ -95,7 +93,6 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 		map.put("orcidControllerUrl",
 				UrlBuilder.getUrl(PATH_START_CONFIRMATION));
 		map.put("cancelUrl", profileUrl());
-		map.put("individualUri", state.getIndividualUri());
 
 		if (cornellNetId() != null) {
 			map.put("mayAddCornellId", true);

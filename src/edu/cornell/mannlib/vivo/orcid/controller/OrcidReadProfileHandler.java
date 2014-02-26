@@ -52,6 +52,8 @@ public class OrcidReadProfileHandler extends OrcidAbstractHandler {
 
 		orcid = status.getAccessToken().getOrcid();
 		log.debug("Read profile, orcid=" + orcid);
+		
+		recordValidation(orcid);
 	}
 
 	private ResponseValues showSuccess() {

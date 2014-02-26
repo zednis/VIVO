@@ -12,8 +12,11 @@
     <#if orcidInfo??>
         <div><b>
         	OrcidInfo: auth=${(orcidInfo.authorizedToValidate?string)!"NOT FOUND"}, 
-        	validated=${(orcidInfo.orcids[statement.value]?string)!"NOT FOUND"}}
+        	validated=${(orcidInfo.orcids[statement.value]?string)!"NOT FOUND"}
         </b></div>
+        <#if orcidInfo.authorizedToValidate>
+            <a href="${orcidInfo.orcidUrl}">validate it!</a>
+        </#if>
     </#if>
 </#macro>
 

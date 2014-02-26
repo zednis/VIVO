@@ -61,9 +61,9 @@ public class OrcidContextSetup implements ServletContextListener {
 			settings.put(AUTHORIZED_API_BASE_URL,
 					props.getProperty("orcid.authorizedApiBaseUrl"));
 			settings.put(OAUTH_AUTHORIZE_URL,
-					props.getProperty("orcid.oauthTokenUrl"));
-			settings.put(OAUTH_TOKEN_URL,
 					props.getProperty("orcid.oauthAuthorizeUrl"));
+			settings.put(OAUTH_TOKEN_URL,
+					props.getProperty("orcid.oauthTokenUrl"));
 			settings.put(MESSAGE_VERSION,
 					props.getProperty("orcid.messageVersion"));
 			settings.put(WEBAPP_BASE_URL,

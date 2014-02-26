@@ -59,6 +59,7 @@ public class OrcidAddExternalIdsHandler extends OrcidAbstractHandler {
 			message = addCornellId();
 		}
 		orcid = status.getAccessToken().getOrcid();
+		recordValidation(orcid);
 	}
 
 	private OrcidMessage addVivoId() throws OrcidClientException {
