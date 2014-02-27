@@ -5,6 +5,8 @@ package edu.cornell.mannlib.vivo.orcid.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import edu.cornell.mannlib.orcidclient.orcidmessage.OrcidMessage;
+
 /**
  * Keep track of what was requested for the Orcid confirmation. 
  */
@@ -35,6 +37,7 @@ class OrcidConfirmationState {
 	private String individualUri;
 	private boolean addCornellId;
 	private boolean addVivoId;
+	private OrcidMessage profile;
 
 	OrcidConfirmationState() {
 		reset();
@@ -44,6 +47,7 @@ class OrcidConfirmationState {
 		individualUri = "NO_URI";
 		addCornellId = false;
 		addVivoId = false;
+		profile = new OrcidMessage();
 		return this;
 	}
 
@@ -72,6 +76,14 @@ class OrcidConfirmationState {
 	public OrcidConfirmationState setAddVivoId(boolean addVivoId) {
 		this.addVivoId = addVivoId;
 		return this;
+	}
+
+	public OrcidMessage getProfile() {
+		return profile;
+	}
+
+	public void setProfile(OrcidMessage profile) {
+		this.profile = profile;
 	}
 
 }

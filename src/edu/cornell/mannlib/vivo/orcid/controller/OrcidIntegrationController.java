@@ -23,21 +23,41 @@ import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.Exc
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.ResponseValues;
 
 /**
- * TODO
+ * New workflow:
+ * <pre>
+ *    Default: clear status for both readProfile and addExternalIDs 
+ *      show intro screen orcidOffer.ftl
+ *    	The click "do it", goes to /getProfileAuth
+ *      Or "return to profile"
+ *    /getProfileAuth: If already authorized, redirect to /readProfile
+ *      Else, do the dance, ending with /readProfile callback
+ *      Denied? show orcidDenied.ftl
+ *      Failed? show orcidFailed.ftl
+ *    /readProfile: read the profile, store in status 
+ *    	figure external ID options, show orcidOfferIds.ftl
+ *      If they click "do it", goes /authExternalIds
+ *      If they click "nah", return to profile
+ *    /authExternalIds: if already authorized, redirect to /addExternalIds
+ *      Else, do the dance, ending with /addExternalIds callback
+ *    /addExternalIds add one or both IDs, store new profile in status
+ *      show orcidSuccess.ftl with "return to profile" and "view profile" links.
+ * </pre>
  */
 public class OrcidIntegrationController extends FreemarkerHttpServlet {
 	private static final Log log = LogFactory
 			.getLog(OrcidIntegrationController.class);
 
-	private final static String PATHINFO_START_CONFIRMATION = "/start";
 	private final static String PATHINFO_CALLBACK = "/callback";
+	private final static String PATHINFO_AUTH_PROFILE = "/getProfileAuth";
 	private final static String PATHINFO_READ_PROFILE = "/readProfile";
+	private final static String PATHINFO_AUTH_EXTERNAL_IDS = "/authExternalIds";
 	private final static String PATHINFO_ADD_EXTERNAL_IDS = "/addExternalIds";
 
 	public final static String PATH_DEFAULT = "orcid";
 
-	final static String PATH_START_CONFIRMATION = path(PATHINFO_START_CONFIRMATION);
+	final static String PATH_AUTH_PROFILE = path(PATHINFO_AUTH_PROFILE);
 	final static String PATH_READ_PROFILE = path(PATHINFO_READ_PROFILE);
+	final static String PATH_AUTH_EXTERNAL_IDS = path(PATHINFO_AUTH_EXTERNAL_IDS);
 	final static String PATH_ADD_EXTERNAL_IDS = path(PATHINFO_ADD_EXTERNAL_IDS);
 
 	static String path(String pathInfo) {
@@ -45,6 +65,7 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 	}
 
 	final static String TEMPLATE_OFFER = "orcidOffer.ftl";
+	final static String TEMPLATE_OFFER_IDS = "orcidOfferIds.ftl";
 	final static String TEMPLATE_DENIED = "orcidDenied.ftl";
 	final static String TEMPLATE_FAILED = "orcidFailed.ftl";
 	final static String TEMPLATE_SUCCESS = "orcidSuccess.ftl";
@@ -82,10 +103,12 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 		try {
 			String pathInfo = vreq.getPathInfo();
 			log.debug("Path info: " + pathInfo);
-			if (PATHINFO_START_CONFIRMATION.equals(pathInfo)) {
-				return new OrcidStartConfirmationHandler(vreq).exec();
+			if (PATHINFO_AUTH_PROFILE.equals(pathInfo)) {
+				return new OrcidAuthProfileHandler(vreq).exec();
 			} else if (PATHINFO_READ_PROFILE.equals(pathInfo)) {
 				return new OrcidReadProfileHandler(vreq).exec();
+			} else if (PATHINFO_AUTH_EXTERNAL_IDS.equals(pathInfo)) {
+				return new OrcidAuthExternalIdsHandler(vreq).exec();
 			} else if (PATHINFO_ADD_EXTERNAL_IDS.equals(pathInfo)) {
 				return new OrcidAddExternalIdsHandler(vreq).exec();
 			} else {

@@ -16,22 +16,6 @@
     </p>
 
     <form method="GET" action="${orcidControllerUrl}">
-    	<label>
-    		Would you like VIVO to add your VIVO account to your ORCID profile as an external identifier?
-    		<input type="checkbox" name="addVivoId" />
-    	</label>
-
-		<#if mayAddCornellId??>
-    	<label>
-    		Would you like VIVO to add your Cornell NetID to your ORCID profile as an external identifier?
-    		<input type="checkbox" name="addNetId" />
-    	</label>
-    	</#if>
-    	
-    	<p>
-    		Note: If you check either box, ORCID will ask you to authorize the external identifier(s).
-    	</p>
-
         <p><input type="submit" name="submit" value="Confirm" class="submit"/>
             or 
             <a class="cancel" href="${cancelUrl}" >Cancel</a>

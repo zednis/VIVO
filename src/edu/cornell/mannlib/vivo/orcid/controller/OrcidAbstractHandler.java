@@ -6,6 +6,7 @@ import static edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter.ORCID_ID;
 import static edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter.ORCID_IS_VALIDATED;
 import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.TEMPLATE_DENIED;
 import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.TEMPLATE_FAILED;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,6 +98,15 @@ public abstract class OrcidAbstractHandler {
 			return null;
 		}
 		return externalId;
+	}
+
+	protected ResponseValues show500InternalServerError(String message) {
+		log.error("Problem with ORCID request: " + message);
+		Map<String, Object> map = new HashMap<>();
+		map.put("title", "500 Internal Server Error");
+		map.put("errorMessage", message);
+		return new TemplateResponseValues("error-titled.ftl", map,
+				SC_INTERNAL_SERVER_ERROR);
 	}
 
 	protected ResponseValues showDeniedAuthorization(ApiAction action) {
