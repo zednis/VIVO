@@ -10,13 +10,13 @@
 <#macro showStatement statement>
     <a href="${statement.value!}" title="ORCID iD" target="_blank">${statement.value!"ORCID iD not found"}</a>
     <#if orcidInfo??>
-        <div><b>
-        	OrcidInfo: auth=${(orcidInfo.authorizedToValidate?string)!"NOT FOUND"}, 
-        	validated=${(orcidInfo.orcids[statement.value]?string)!"NOT FOUND"}
-        </b></div>
-        <#if orcidInfo.authorizedToValidate>
-            <a href="${orcidInfo.orcidUrl}">validate it!</a>
-        </#if>
+      <#if (orcidInfo.orcids[statement.value])!false>
+        <b>CONFIRMED</b>
+      <#else>
+        <script>
+          $('#orcidId').html("ORCID iD <a href='${orcidInfo.orcidUrl}'>Confirm/Create</a>");
+        </script>
+      </#if>
     </#if>
 </#macro>
 

@@ -11,6 +11,8 @@ import static edu.cornell.mannlib.orcidclient.context.OrcidClientContext.Setting
 import static edu.cornell.mannlib.orcidclient.context.OrcidClientContext.Setting.OAUTH_TOKEN_URL;
 import static edu.cornell.mannlib.orcidclient.context.OrcidClientContext.Setting.PUBLIC_API_BASE_URL;
 import static edu.cornell.mannlib.orcidclient.context.OrcidClientContext.Setting.WEBAPP_BASE_URL;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.DEFAULT_EXTERNAL_ID_COMMON_NAME;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PROPERTY_EXTERNAL_ID_COMMON_NAME;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -19,6 +21,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -51,6 +54,13 @@ public class OrcidContextSetup implements ServletContextListener {
 			return;
 		}
 
+		initializeOrcidClientContext(props, ss);
+
+		checkForCommonNameProperty(props, ss);
+	}
+
+	private void initializeOrcidClientContext(ConfigurationProperties props,
+			StartupStatus ss) {
 		try {
 			Map<Setting, String> settings = new EnumMap<>(Setting.class);
 			settings.put(CLIENT_ID, props.getProperty("orcid.clientId"));
@@ -72,8 +82,20 @@ public class OrcidContextSetup implements ServletContextListener {
 
 			OrcidClientContext.initialize(settings);
 			ss.info(this, "Context is: " + OrcidClientContext.getInstance());
+
 		} catch (OrcidClientException e) {
 			ss.warning(this, "Failed to initialize OrcidClientContent", e);
+		}
+	}
+
+	private void checkForCommonNameProperty(ConfigurationProperties props,
+			StartupStatus ss) {
+		if (StringUtils.isBlank(props
+				.getProperty(PROPERTY_EXTERNAL_ID_COMMON_NAME))) {
+			ss.warning(this, "'" + PROPERTY_EXTERNAL_ID_COMMON_NAME
+					+ "' is not set. " + "Using default value of '"
+					+ DEFAULT_EXTERNAL_ID_COMMON_NAME + "'");
+
 		}
 	}
 

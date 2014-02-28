@@ -2,6 +2,7 @@
 
 package edu.cornell.mannlib.vivo.orcid.controller;
 
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.Res
 
 /**
  * New workflow:
+ * 
  * <pre>
  *    Default: clear status for both readProfile and addExternalIDs 
  *      show intro screen orcidOffer.ftl
@@ -50,25 +52,26 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 	private final static String PATHINFO_CALLBACK = "/callback";
 	private final static String PATHINFO_AUTH_PROFILE = "/getProfileAuth";
 	private final static String PATHINFO_READ_PROFILE = "/readProfile";
-	private final static String PATHINFO_AUTH_EXTERNAL_IDS = "/authExternalIds";
-	private final static String PATHINFO_ADD_EXTERNAL_IDS = "/addExternalIds";
+	private final static String PATHINFO_AUTH_EXTERNAL_ID = "/authExternalId";
+	private final static String PATHINFO_ADD_EXTERNAL_ID = "/addExternalId";
 
 	public final static String PATH_DEFAULT = "orcid";
 
 	final static String PATH_AUTH_PROFILE = path(PATHINFO_AUTH_PROFILE);
 	final static String PATH_READ_PROFILE = path(PATHINFO_READ_PROFILE);
-	final static String PATH_AUTH_EXTERNAL_IDS = path(PATHINFO_AUTH_EXTERNAL_IDS);
-	final static String PATH_ADD_EXTERNAL_IDS = path(PATHINFO_ADD_EXTERNAL_IDS);
+	final static String PATH_AUTH_EXTERNAL_ID = path(PATHINFO_AUTH_EXTERNAL_ID);
+	final static String PATH_ADD_EXTERNAL_ID = path(PATHINFO_ADD_EXTERNAL_ID);
 
 	static String path(String pathInfo) {
 		return PATH_DEFAULT + pathInfo;
 	}
 
-	final static String TEMPLATE_OFFER = "orcidOffer.ftl";
-	final static String TEMPLATE_OFFER_IDS = "orcidOfferIds.ftl";
+	final static String TEMPLATE_CONFIRM = "orcidConfirm.ftl";
 	final static String TEMPLATE_DENIED = "orcidDenied.ftl";
 	final static String TEMPLATE_FAILED = "orcidFailed.ftl";
-	final static String TEMPLATE_SUCCESS = "orcidSuccess.ftl";
+
+	public static final String PROPERTY_EXTERNAL_ID_COMMON_NAME = "orcid.externalIdCommonName";
+	public static final String DEFAULT_EXTERNAL_ID_COMMON_NAME = "VIVO Identifier";
 
 	/**
 	 * Get in before FreemarkerHttpServlet for special handling.
@@ -81,8 +84,9 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 		}
 		if (PATHINFO_CALLBACK.equals(req.getPathInfo())) {
 			new OrcidCallbackHandler(req, resp).exec();
+		} else {
+			super.doGet(req, resp);
 		}
-		super.doGet(req, resp);
 	}
 
 	/**
@@ -107,15 +111,15 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 				return new OrcidAuthProfileHandler(vreq).exec();
 			} else if (PATHINFO_READ_PROFILE.equals(pathInfo)) {
 				return new OrcidReadProfileHandler(vreq).exec();
-			} else if (PATHINFO_AUTH_EXTERNAL_IDS.equals(pathInfo)) {
+			} else if (PATHINFO_AUTH_EXTERNAL_ID.equals(pathInfo)) {
 				return new OrcidAuthExternalIdsHandler(vreq).exec();
-			} else if (PATHINFO_ADD_EXTERNAL_IDS.equals(pathInfo)) {
-				return new OrcidAddExternalIdsHandler(vreq).exec();
+			} else if (PATHINFO_ADD_EXTERNAL_ID.equals(pathInfo)) {
+				return new OrcidAddExternalIdHandler(vreq).exec();
 			} else {
 				return new OrcidDefaultHandler(vreq).exec();
 			}
 		} catch (Exception e) {
-			return new ExceptionResponseValues(e);
+			return new ExceptionResponseValues(e, SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 

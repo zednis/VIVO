@@ -3,7 +3,9 @@
 package edu.cornell.mannlib.vivo.orcid.controller;
 
 import static edu.cornell.mannlib.orcidclient.actions.ApiAction.ADD_EXTERNAL_ID;
-import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PATH_ADD_EXTERNAL_IDS;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.DENIED_ID;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.FAILED_ID;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PATH_ADD_EXTERNAL_ID;
 
 import java.net.URISyntaxException;
 
@@ -35,47 +37,30 @@ public class OrcidAuthExternalIdsHandler extends OrcidAbstractHandler {
 
 	public ResponseValues exec() throws URISyntaxException,
 			OrcidClientException {
-		updateState();
-
-		if (isAddingExternalIds()) {
-			status = auth.getAuthorizationStatus(ADD_EXTERNAL_ID);
-			if (status.isNone()) {
-				return seekAuthorizationForExternalIds();
-			} else if (status.isSuccess()) {
-				return redirectToAddExternalIds();
-			} else if (status.isDenied()) {
-				return showDeniedAuthorization(ADD_EXTERNAL_ID);
-			} else {
-				return showFailedAuthorization(ADD_EXTERNAL_ID);
-			}
+		status = auth.getAuthorizationStatus(ADD_EXTERNAL_ID);
+		if (status.isNone()) {
+			return seekAuthorizationForExternalId();
+		} else if (status.isSuccess()) {
+			return redirectToAddExternalId();
+		} else if (status.isDenied()) {
+			return showConfirmationPage(DENIED_ID);
 		} else {
-			return show500InternalServerError("No External IDs selected.");
+			return showConfirmationPage(FAILED_ID);
 		}
 	}
 
-	private void updateState() {
-		state.setAddVivoId(vreq.getParameterMap().keySet()
-				.contains("addVivoId"));
-		state.setAddCornellId(vreq.getParameterMap().keySet()
-				.contains("addCornellId"));
-	}
-
-	private boolean isAddingExternalIds() {
-		return state.isAddVivoId() || state.isAddCornellId();
-	}
-
-	private ResponseValues seekAuthorizationForExternalIds()
+	private ResponseValues seekAuthorizationForExternalId()
 			throws OrcidClientException, URISyntaxException {
-		log.debug("Seeking authorization to add external IDs");
-		String returnUrl = occ.resolvePathWithWebapp(PATH_ADD_EXTERNAL_IDS);
+		log.debug("Seeking authorization to add external ID");
+		String returnUrl = occ.resolvePathWithWebapp(PATH_ADD_EXTERNAL_ID);
 		String seekUrl = auth.seekAuthorization(ADD_EXTERNAL_ID, returnUrl);
 		return new RedirectResponseValues(seekUrl);
 	}
 
-	private ResponseValues redirectToAddExternalIds() throws URISyntaxException {
-		log.debug("Already authorized to add external IDs.");
+	private ResponseValues redirectToAddExternalId() throws URISyntaxException {
+		log.debug("Already authorized to add external ID.");
 		return new RedirectResponseValues(
-				occ.resolvePathWithWebapp(PATH_ADD_EXTERNAL_IDS));
+				occ.resolvePathWithWebapp(PATH_ADD_EXTERNAL_ID));
 	}
 
 }

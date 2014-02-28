@@ -2,8 +2,8 @@
 
 package edu.cornell.mannlib.vivo.orcid.controller;
 
-import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PATH_AUTH_PROFILE;
-import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.TEMPLATE_OFFER;
+import static edu.cornell.mannlib.orcidclient.actions.ApiAction.ADD_EXTERNAL_ID;
+import static edu.cornell.mannlib.orcidclient.actions.ApiAction.READ_PROFILE;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 import java.util.Collection;
@@ -13,7 +13,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.cornell.mannlib.orcidclient.actions.ApiAction;
 import edu.cornell.mannlib.vedit.beans.LoginStatusBean;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.IdentifierBundle;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.RequestIdentifiers;
@@ -28,7 +27,8 @@ import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.Tem
 
 /**
  * A request came from the "Confirm" button on the individual profile. Get a
- * fresh state object, clear the AuthorizationCache and show the "Offer" page.
+ * fresh state object, clear the AuthorizationCache and show the confirmation
+ * page.
  */
 public class OrcidDefaultHandler extends OrcidAbstractHandler {
 	private static final Log log = LogFactory.getLog(OrcidDefaultHandler.class);
@@ -39,7 +39,7 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 		super(vreq);
 	}
 
-	public ResponseValues exec() {
+	public ResponseValues exec() throws OrcidIllegalStateException {
 		try {
 			initializeState();
 			initializeAuthorizationCache();
@@ -53,7 +53,7 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 			return showNotAuthorized();
 		}
 
-		return showOffer();
+		return showConfirmationPage();
 	}
 
 	private void initializeState() {
@@ -62,12 +62,13 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 			throw new IllegalStateException(
 					"No 'individualUri' parameter on request.");
 		}
-		state.reset().setIndividualUri(uri);
+		String profilePage = UrlBuilder.getIndividualProfileUrl(uri, vreq);
+		state.reset(uri, profilePage);
 	}
 
 	private void initializeAuthorizationCache() {
-		auth.clearStatus(ApiAction.READ_PROFILE);
-		auth.clearStatus(ApiAction.ADD_EXTERNAL_ID);
+		auth.clearStatus(READ_PROFILE);
+		auth.clearStatus(ADD_EXTERNAL_ID);
 	}
 
 	private ResponseValues show400BadRequest(Exception e) {
@@ -93,14 +94,6 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 		return new NotAuthorizedResponseValues(userName
 				+ "is not authorized for ORCID operations on '" + individual
 				+ "'");
-	}
-
-	private ResponseValues showOffer() {
-		Map<String, Object> map = new HashMap<>();
-		map.put("orcidControllerUrl",
-				UrlBuilder.getUrl(PATH_AUTH_PROFILE));
-		map.put("cancelUrl", profileUrl());
-		return new TemplateResponseValues(TEMPLATE_OFFER, map);
 	}
 
 }

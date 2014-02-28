@@ -3,6 +3,8 @@
 package edu.cornell.mannlib.vivo.orcid.controller;
 
 import static edu.cornell.mannlib.orcidclient.actions.ApiAction.READ_PROFILE;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.DENIED_PROFILE;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.FAILED_PROFILE;
 import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PATH_READ_PROFILE;
 
 import java.net.URISyntaxException;
@@ -35,16 +37,16 @@ public class OrcidAuthProfileHandler extends OrcidAbstractHandler {
 
 	public ResponseValues exec() throws URISyntaxException,
 			OrcidClientException {
-			status = auth.getAuthorizationStatus(READ_PROFILE);
-			if (status.isNone()) {
-				return seekAuthorizationForReadProfile();
-			} else if (status.isSuccess()) {
-				return redirectToReadProfile();
-			} else if (status.isDenied()) {
-				return showDeniedAuthorization(READ_PROFILE);
-			} else {
-				return showFailedAuthorization(READ_PROFILE);
-			}
+		status = auth.getAuthorizationStatus(READ_PROFILE);
+		if (status.isNone()) {
+			return seekAuthorizationForReadProfile();
+		} else if (status.isSuccess()) {
+			return redirectToReadProfile();
+		} else if (status.isDenied()) {
+			return showConfirmationPage(DENIED_PROFILE);
+		} else {
+			return showConfirmationPage(FAILED_PROFILE);
+		}
 	}
 
 	private ResponseValues seekAuthorizationForReadProfile()
