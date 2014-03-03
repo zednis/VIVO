@@ -7,7 +7,7 @@
 # datagetter to fetch ORCID info for the person. 
 #
 
-foaf:Person display:hasDataGetter display:orcidIdDataGetter .
+<freemarker:individual-orcidInterface.ftl> display:hasDataGetter display:orcidIdDataGetter .
 
 display:orcidIdDataGetter
     a <java:edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter> .

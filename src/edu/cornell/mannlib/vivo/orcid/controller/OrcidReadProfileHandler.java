@@ -38,7 +38,7 @@ public class OrcidReadProfileHandler extends OrcidAbstractHandler {
 			readProfile();
 			state.progress(GOT_PROFILE, profile);
 
-			recordValidation();
+			recordConfirmation();
 			
 			if (state.getVivoId() != null) {
 				state.progress(ID_ALREADY_PRESENT);

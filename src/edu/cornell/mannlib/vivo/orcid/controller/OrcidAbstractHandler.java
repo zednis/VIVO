@@ -2,8 +2,10 @@
 
 package edu.cornell.mannlib.vivo.orcid.controller;
 
+import static edu.cornell.mannlib.vitro.webapp.dao.VitroVocabulary.OWL_THING;
+import static edu.cornell.mannlib.vitro.webapp.dao.VitroVocabulary.RDF_TYPE;
 import static edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter.ORCID_ID;
-import static edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter.ORCID_IS_VALIDATED;
+import static edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter.ORCID_IS_CONFIRMED;
 import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.TEMPLATE_CONFIRM;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
@@ -65,20 +67,23 @@ public abstract class OrcidAbstractHandler {
 		}
 	}
 
-	protected void recordValidation() throws OrcidIllegalStateException {
+	protected void recordConfirmation() {
 		String individualUri = state.getIndividualUri();
 		String orcidUri = state.getOrcidUri();
-		log.debug("Recording validation of ORCID '" + orcidUri + "' on '"
+		log.debug("Recording confirmation of ORCID '" + orcidUri + "' on '"
 				+ individualUri + "'");
 		ObjectPropertyStatement ops1 = new ObjectPropertyStatementImpl(
 				individualUri, ORCID_ID, orcidUri);
 		ObjectPropertyStatement ops2 = new ObjectPropertyStatementImpl(
-				orcidUri, ORCID_IS_VALIDATED, individualUri);
+				orcidUri, RDF_TYPE, OWL_THING);
+		ObjectPropertyStatement ops3 = new ObjectPropertyStatementImpl(
+				orcidUri, ORCID_IS_CONFIRMED, individualUri);
 
 		ObjectPropertyStatementDao opsd = vreq.getWebappDaoFactory()
 				.getObjectPropertyStatementDao();
 		opsd.insertNewObjectPropertyStatement(ops1);
 		opsd.insertNewObjectPropertyStatement(ops2);
+		opsd.insertNewObjectPropertyStatement(ops3);
 	}
 
 	protected String cornellNetId() {
@@ -105,13 +110,12 @@ public abstract class OrcidAbstractHandler {
 	}
 
 	protected ResponseValues showConfirmationPage(Progress p,
-			OrcidMessage... messages) throws OrcidIllegalStateException {
+			OrcidMessage... messages) {
 		state.progress(p, messages);
 		return showConfirmationPage();
 	}
 
-	protected ResponseValues showConfirmationPage()
-			throws OrcidIllegalStateException {
+	protected ResponseValues showConfirmationPage() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("orcidInfo", state.toMap());
 		return new TemplateResponseValues(TEMPLATE_CONFIRM, map);

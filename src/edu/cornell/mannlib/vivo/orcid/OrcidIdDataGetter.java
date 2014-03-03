@@ -31,18 +31,18 @@ import edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController;
  * This data getter should be assigned to the template that renders the list
  * view for ORCID IDs.
  * 
- * Find out whether the user is authorized to validate the ORCID IDs on this
+ * Find out whether the user is authorized to confirm the ORCID IDs on this
  * page. Find the list of ORCID IDs, and whether each has already been
- * validated.
+ * confirmed.
  * 
  * The information is stored in the values map like this:
  * 
  * <pre>
  *    orcidInfo = map {
- *        authorizedToValidate: boolean
+ *        authorizedToConfirm: boolean
  *        orcids: map of String to boolean [
  *            orcid: String
- *            validated: boolean
+ *            confirm: boolean
  *        ]
  *    }
  * </pre>
@@ -53,12 +53,12 @@ public class OrcidIdDataGetter implements DataGetter {
 	private static final Map<String, Object> EMPTY_RESULT = Collections
 			.emptyMap();
 	public static final String ORCID_ID = "http://vivoweb.org/ontology/core#orcidId";
-	public static final String ORCID_IS_VALIDATED = "http://vivoweb.org/ontology/core#validatedOrcidId";
-	private static final String QUERY_TEMPLATE = "SELECT ?orcid ?validated \n"
+	public static final String ORCID_IS_CONFIRMED = "http://vivoweb.org/ontology/core#confirmedOrcidId";
+	private static final String QUERY_TEMPLATE = "SELECT ?orcid ?confirmed \n"
 			+ "WHERE { \n" //
 			+ "    <%s> <%s> ?orcid . \n" //
 			+ "    OPTIONAL { \n" //
-			+ "       ?orcid <%s> ?validated . \n" //
+			+ "       ?orcid <%s> ?confirmed . \n" //
 			+ "       }  \n" //
 			+ "}\n";
 
@@ -76,9 +76,9 @@ public class OrcidIdDataGetter implements DataGetter {
 				return EMPTY_RESULT;
 			}
 
-			boolean isAuthorizedToValidate = figureIsAuthorizedtoValidate(individualUri);
+			boolean isAuthorizedToConfirm = figureIsAuthorizedtoConfirm(individualUri);
 			List<OrcidInfo> orcids = runSparqlQuery(individualUri);
-			return buildMap(isAuthorizedToValidate, orcids, individualUri);
+			return buildMap(isAuthorizedToConfirm, orcids, individualUri);
 		} catch (Exception e) {
 			log.warn("Failed to get orcID information", e);
 			return EMPTY_RESULT;
@@ -104,10 +104,10 @@ public class OrcidIdDataGetter implements DataGetter {
 	}
 
 	/**
-	 * You are authorized to validate an orcId only if you are a self-editor or
+	 * You are authorized to confirm an orcId only if you are a self-editor or
 	 * root.
 	 */
-	private boolean figureIsAuthorizedtoValidate(String individualUri) {
+	private boolean figureIsAuthorizedtoConfirm(String individualUri) {
 		IdentifierBundle ids = RequestIdentifiers.getIdBundleForRequest(vreq);
 		boolean isSelfEditor = HasProfile.getProfileUris(ids).contains(
 				individualUri);
@@ -117,24 +117,24 @@ public class OrcidIdDataGetter implements DataGetter {
 
 	private List<OrcidInfo> runSparqlQuery(String individualUri) {
 		String queryStr = String.format(QUERY_TEMPLATE, individualUri,
-				ORCID_ID, ORCID_IS_VALIDATED);
+				ORCID_ID, ORCID_IS_CONFIRMED);
 		SparqlQueryRunner runner = new SparqlQueryRunner(vreq.getJenaOntModel());
 		return runner.executeSelect(new OrcidResultParser(), queryStr);
 	}
 
-	private Map<String, Object> buildMap(boolean isAuthorizedToValidate,
+	private Map<String, Object> buildMap(boolean isAuthorizedToConfirm,
 			List<OrcidInfo> orcids, String individualUri) {
-		Map<String, Boolean> validationMap = new HashMap<>();
+		Map<String, Boolean> confirmationMap = new HashMap<>();
 		for (OrcidInfo oInfo : orcids) {
-			validationMap.put(oInfo.getOrcid(), oInfo.isValidated());
+			confirmationMap.put(oInfo.getOrcid(), oInfo.isConfirmed());
 		}
 
 		Map<String, Object> orcidInfoMap = new HashMap<>();
-		orcidInfoMap.put("authorizedToValidate", isAuthorizedToValidate);
+		orcidInfoMap.put("authorizedToConfirm", isAuthorizedToConfirm);
 		orcidInfoMap.put("orcidUrl", UrlBuilder.getUrl(
 				OrcidIntegrationController.PATH_DEFAULT, "individualUri",
 				individualUri));
-		orcidInfoMap.put("orcids", validationMap);
+		orcidInfoMap.put("orcids", confirmationMap);
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("orcidInfo", orcidInfoMap);
@@ -165,13 +165,13 @@ public class OrcidIdDataGetter implements DataGetter {
 				try {
 					QuerySolution solution = results.next();
 					Resource orcid = solution.getResource("orcid");
-					RDFNode vNode = solution.get("validated");
-					log.debug("Result is orcid=" + orcid + ", validated="
-							+ vNode);
+					RDFNode cNode = solution.get("confirmed");
+					log.debug("Result is orcid=" + orcid + ", confirmed="
+							+ cNode);
 
 					if (orcid != null && orcid.isURIResource()) {
-						boolean validated = (vNode != null);
-						orcids.add(new OrcidInfo(orcid.getURI(), validated));
+						boolean confirmed = (cNode != null);
+						orcids.add(new OrcidInfo(orcid.getURI(), confirmed));
 					}
 				} catch (Exception e) {
 					log.warn("Failed to parse the query result: " + queryStr, e);
@@ -187,24 +187,24 @@ public class OrcidIdDataGetter implements DataGetter {
 	 */
 	static class OrcidInfo {
 		private final String orcid;
-		private final boolean validated;
+		private final boolean confirmed;
 
-		public OrcidInfo(String orcid, boolean validated) {
+		public OrcidInfo(String orcid, boolean confirmed) {
 			this.orcid = orcid;
-			this.validated = validated;
+			this.confirmed = confirmed;
 		}
 
 		public String getOrcid() {
 			return orcid;
 		}
 
-		public boolean isValidated() {
-			return validated;
+		public boolean isConfirmed() {
+			return confirmed;
 		}
 
 		@Override
 		public String toString() {
-			return "OrcidInfo[orcid=" + orcid + ", validated=" + validated
+			return "OrcidInfo[orcid=" + orcid + ", confirmed=" + confirmed
 					+ "]";
 		}
 
