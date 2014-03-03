@@ -18,7 +18,9 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.IdentifierBundle;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.RequestIdentifiers;
+import edu.cornell.mannlib.vitro.webapp.auth.identifier.common.HasAssociatedIndividual;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.common.HasProfile;
+import edu.cornell.mannlib.vitro.webapp.auth.identifier.common.HasProxyEditingRights;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.common.IsRootUser;
 import edu.cornell.mannlib.vitro.webapp.controller.VitroRequest;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.UrlBuilder;
@@ -111,8 +113,10 @@ public class OrcidIdDataGetter implements DataGetter {
 		IdentifierBundle ids = RequestIdentifiers.getIdBundleForRequest(vreq);
 		boolean isSelfEditor = HasProfile.getProfileUris(ids).contains(
 				individualUri);
+		boolean isProxyEditor = HasProxyEditingRights.getProxiedPageUris(ids)
+				.contains(individualUri);
 		boolean isRoot = IsRootUser.isRootUser(ids);
-		return isRoot || isSelfEditor;
+		return isRoot || isProxyEditor || isSelfEditor;
 	}
 
 	private List<OrcidInfo> runSparqlQuery(String individualUri) {
