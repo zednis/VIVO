@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,12 +64,14 @@ class OrcidConfirmationState {
 
 	private Progress progress;
 	private String individualUri;
+	private Set<String> existingOrcids;
 	private OrcidMessage profile;
 	private String profilePageUrl;
 
-	public void reset(String uri, String profileUrl) {
+	public void reset(String uri, Set<String> existing, String profileUrl) {
 		progress = START;
 		individualUri = uri;
+		existingOrcids = new HashSet<>(existing);
 		profile = null;
 		profilePageUrl = profileUrl;
 	}
@@ -207,6 +210,7 @@ class OrcidConfirmationState {
 		map.put("orcidUri", getOrcidUri());
 		map.put("hasVivoId", getVivoId() == null);
 		map.put("externalIds", formatExternalIds());
+		map.put("existingOrcids", existingOrcids);
 
 		String progressUrl = getProgressUrl();
 		if (progressUrl == null) {

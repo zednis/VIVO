@@ -2,7 +2,17 @@
 
 <#-- 
     If authorized to confirm ORCID IDs, add the function that will replace the add link.
-    The OrcidIdDataGetter is attached to this template; it sets the orcidInfo structure. 
+    The OrcidIdDataGetter is attached to this template; it sets the orcidInfo structure,
+    which looks like this:
+    
+    orcidInfo = map {
+        authorizedToConfirm: boolean
+        orcidUrl: link to the orcid controller
+        orcids: map of String to boolean [
+            orcid: String (full URI)
+            confirmed: boolean
+        ]
+    }
 -->
  
 <#if orcidInfo??>

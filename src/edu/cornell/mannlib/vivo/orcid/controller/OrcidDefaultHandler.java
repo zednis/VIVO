@@ -4,11 +4,15 @@ package edu.cornell.mannlib.vivo.orcid.controller;
 
 import static edu.cornell.mannlib.orcidclient.actions.ApiAction.ADD_EXTERNAL_ID;
 import static edu.cornell.mannlib.orcidclient.actions.ApiAction.READ_PROFILE;
+import static edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter.ORCID_ID;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,12 +22,14 @@ import edu.cornell.mannlib.vitro.webapp.auth.identifier.IdentifierBundle;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.RequestIdentifiers;
 import edu.cornell.mannlib.vitro.webapp.auth.identifier.common.HasProfile;
 import edu.cornell.mannlib.vitro.webapp.beans.Individual;
+import edu.cornell.mannlib.vitro.webapp.beans.ObjectPropertyStatement;
 import edu.cornell.mannlib.vitro.webapp.beans.UserAccount;
 import edu.cornell.mannlib.vitro.webapp.controller.VitroRequest;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.UrlBuilder;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.NotAuthorizedResponseValues;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.ResponseValues;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.TemplateResponseValues;
+import edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter;
 
 /**
  * A request came from the "Confirm" button on the individual profile. Get a
@@ -34,6 +40,7 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 	private static final Log log = LogFactory.getLog(OrcidDefaultHandler.class);
 
 	private Individual individual;
+	private final Set<String> existingOrcids = new HashSet<>();
 
 	public OrcidDefaultHandler(VitroRequest vreq) {
 		super(vreq);
@@ -43,7 +50,6 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 		try {
 			initializeState();
 			initializeAuthorizationCache();
-			individual = findIndividual();
 		} catch (Exception e) {
 			log.error("No proper individual URI on the request", e);
 			return show400BadRequest(e);
@@ -62,8 +68,28 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 			throw new IllegalStateException(
 					"No 'individualUri' parameter on request.");
 		}
+
+		individual = findIndividual();
+		locateExistingOrcids();
 		String profilePage = UrlBuilder.getIndividualProfileUrl(uri, vreq);
-		state.reset(uri, profilePage);
+
+		state.reset(uri, existingOrcids, profilePage);
+	}
+
+	private void locateExistingOrcids() {
+		if (individual == null) {
+			return;
+		}
+
+		List<ObjectPropertyStatement> opss = individual
+				.getObjectPropertyStatements(ORCID_ID);
+		if (opss == null) {
+			return;
+		}
+
+		for (ObjectPropertyStatement ops : opss) {
+			existingOrcids.add(ops.getObjectURI());
+		}
 	}
 
 	private void initializeAuthorizationCache() {

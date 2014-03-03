@@ -1,5 +1,31 @@
 <#-- $This file is distributed under the terms of the license in /doc/license.txt$ -->
 
+<#--
+The body map contains the orcidInfo structure, which is set up like this:
+
+orcidInfo
+    progress      - a string set to one of these values: START, DENIED_PROFILE, 
+                    FAILED_PROFILE, GOT_PROFILE, ID_ALREADY_PRESENT, DENIED_ID, 
+                    FAILED_ID, ADDED_ID
+    individualUri - the URI of the person
+    profilePage   - the URL of the individual's profile page
+    orcid         - the confirmed ORCID (just xxxx-xxxx-xxxx-xxxx), 
+                    or the empty string.
+    orcidUri      - the confirmed ORCID (full URI), or the empty string.
+    externalIds   - empty if we haven't read their profile. Otherwise, a sequence
+                    of maps, one for each external ID in their profile. These
+                    might include SCOPUS ID, etc. Each map looks like this:
+                    commonName - e.g., "VIVO Cornell"
+                    reference  - e.g., their VIVO localname
+                    uri        - e.g., their VIVO URI
+    hasVivoId     - true, if we have read the profile and they already have 
+                    their VIVO URI as an external ID. False otherwise.
+    existngOrcids - A sequence of the ORCIDs (full URI) that we already associate 
+                    with this individual.
+    progressUrl   - The URL to go to, that will continue this process. If the 
+                    process is complete or has failed, this is empty.
+-->
+
 <style TYPE="text/css">
 #orcid-offer .step {
     color: blue;
