@@ -68,12 +68,16 @@ class OrcidConfirmationState {
 	private OrcidMessage profile;
 	private String profilePageUrl;
 
-	public void reset(String uri, Set<String> existing, String profileUrl) {
+	public void reset(String uri, String profileUrl) {
 		progress = START;
 		individualUri = uri;
-		existingOrcids = new HashSet<>(existing);
+		existingOrcids = Collections.emptySet();
 		profile = null;
 		profilePageUrl = profileUrl;
+	}
+	
+	public void setExistingOrcids(Set<String> existing) {
+		existingOrcids = new HashSet<>(existing);
 	}
 
 	public void progress(Progress p, OrcidMessage... messages) {
