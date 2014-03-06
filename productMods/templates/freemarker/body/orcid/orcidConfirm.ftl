@@ -24,75 +24,83 @@ orcidInfo
                     with this individual.
     progressUrl   - The URL to go to, that will continue this process. If the 
                     process is complete or has failed, this is empty.
+
 -->
 
 <style TYPE="text/css">
 #orcid-offer .step {
-    color: blue;
-    border: 2px solid black;
-    background-color: pink;
-    margin: 4px;
+    background-color: #F7F7F4;
+    border: 1px solid #cdcdcd;
+    border-radius: 10px;
+    padding: 0 1em 1em;
+    margin: 12px
 } 
 
 #orcid-offer .links {
-	text-align: center;
+	text-align: left;
+	margin-left: 12px;
 }
 
 #orcid-offer ul {
 	list-style: disc inside;
+	line-height: 28px;
 }
 
 #orcid-offer ul.inner {
-	list-style: circle inside;
+	list-style: none;
+	padding-left: 8px;
 }
 
 #orcid-offer li {
 	padding-left: 10px;
 }
 
-#orcid-offer .dimmed h2 {
-    color: #CCCCCC;
+#orcid-offer .dimmed  {
+    opacity:0.35;
+    filter:alpha(opacity=35);
 }
-#orcid-offer .dimmed li {
-    color: #CCCCCC;
+span.completed {
+    color: #9a9a9a;
+    font-size: .8em;
 }
-#orcid-offer .dimmed p {
-    color: #CCCCCC;
-}
-
 </style>
 
-<#assign step2dimmed = (["FAILED_PROFILE", "DENIED_PROFILE"]?seq_contains(orcidInfo.progress))?string("dimmed", "") />
+<#assign orcidTextOne = "add an" />
+<#assign orcidTextTwo = "Adding" />
+<#if orcidResults?has_content>
+    <#assign orcidTextOne = "confirm your" />
+    <#assign orcidTextTwo = "${orcidTextTwo}" />
+</#if>
+<#assign step2dimmed = (["START", "FAILED_PROFILE", "DENIED_PROFILE"]?seq_contains(orcidInfo.progress))?string("dimmed", "") />
 <#assign continueAppears = (["START", "GOT_PROFILE"]?seq_contains(orcidInfo.progress))/>
 
 <div>
 
 <section id="orcid-offer" role="region">
-    <h2>Do you want to confirm your ORCID Identification?</h2>
+    <h2>Do you want to ${orcidTextOne} ORCID Identification?</h2>
    
     <div class="step">
       <#if "START" == orcidInfo.progress>
-        <h2>Confirming your ORCID ID:</h2>
+        <h2>Step 1: ${orcidTextTwo} your ORCID ID</h2>
         <ul>
           <li>VIVO redirects you to ORCID's web site.</li>
-          <li>
-            You log in to your ORCID account.
+          <li>You log in to your ORCID account.
             <ul class="inner"><li>If you don't have an account, you can create one.</li></ul>
             </li>
-          <li>You tell ORCID that VIVO may read your profile. (one-time permission)</li>
-          <li>VIVO reads your profile.</li>
+          <li>You tell ORCID that VIVO may read your ORCID Record. (one-time permission)</li>
+          <li>VIVO reads your ORCID Record.</li>
           <li>VIVO notes that your ORCID ID is confirmed.</li>
         </ul>
       <#elseif "DENIED_PROFILE" == orcidInfo.progress>
-        <h2>Confirming your ORCID ID:</h2>
+        <h2>Step 1: ${orcidTextTwo} your ORCID ID</h2>
         <p>You denied VIVO's request to read your ORCID profile.</p>
         <p>Confirmation can't continue.</p>
       <#elseif "FAILED_PROFILE" == orcidInfo.progress>
-        <h2>Confirming your ORCID ID:</h2>
+        <h2>Step 1: ${orcidTextTwo} your ORCID ID</h2>
         <p>VIVO failed to read your ORCID profile.</p>
         <p>Confirmation can't continue.</p>
       <#else>
-        <h2>Confirming your ORCID ID:</h2>
+        <h2>Step 1: ${orcidTextTwo} your ORCID ID <span class="completed">(step completed)</span></h2>
         <p>Your ORCID ID is confirmed as ${orcidInfo.orcid}</p>
         <p><a href="${orcidInfo.orcidUri}" target="_blank">View your ORCID profile page.</a></p>
       </#if>
@@ -100,25 +108,25 @@ orcidInfo
     
     <div class="step ${step2dimmed}">
       <#if "ID_ALREADY_PRESENT" == orcidInfo.progress>
-        <h2>Linking your ORCID profile to VIVO (Optional)</h2>
+        <h2>Step 2 (optional): Linking your ORCID Record to VIVO <span class="completed">(step completed)</span></h2>
         <p>Your ORCID profile already includes a link to VIVO.</p>
       <#elseif "DENIED_ID" == orcidInfo.progress>
-        <h2>Linking your ORCID profile to VIVO (Optional)</h2>
+        <h2>Step 2 (optional): Linking your ORCID Record to VIVO</h2>
         <p>You denied VIVO's request to add an External ID to your ORCID profile.</p>
         <p>Linking can't continue.</p>
       <#elseif "FAILED_ID" == orcidInfo.progress>
-        <h2>Linking your ORCID profile to VIVO (Optional)</h2>
+        <h2>Step 2 (optional): Linking your ORCID Record to VIVO</h2>
         <p>VIVO failed to add an External ID to your ORCID profile.</p>
         <p>Linking can't continue.</p>
       <#elseif "ADDED_ID" == orcidInfo.progress>
-        <h2>Linking your ORCID profile to VIVO (Optional)</h2>
+        <h2>Step 2 (optional): Linking your ORCID Record to VIVO <span class="completed">(step completed)</span></h2>
         <p>Your ORCID profile is linked to VIVO</p>
         <p><a href="${orcidInfo.orcidUri}" target="_blank">View your ORCID profile page.</a></p>
       <#else>
-        <h2>Linking your ORCID profile to VIVO (Optional)</h2>
+        <h2>Step 2 (optional): Linking your ORCID Record to VIVO</h2>
         <ul>
           <li>VIVO redirects you to ORCID's web site</li>
-          <li>You tell ORCID that VIVO may add an "external ID" to your profile. (one-time permission)</li>
+          <li>You tell ORCID that VIVO may add an "external ID" to your ORCID Record. (one-time permission)</li>
           <li>VIVO adds the external ID.</li>
         </ul>
       </#if>
@@ -128,13 +136,13 @@ orcidInfo
       <form method="GET" action="${orcidInfo.progressUrl}">
         <p>
           <#if continueAppears>
-            <input type="submit" name="submit" value="Continue" class="submit"/>
+            <input type="submit" name="submit" value="Continue <#if "START" == orcidInfo.progress>Step 1<#else>Step 2</#if>" class="submit"/>
             or 
           </#if>
-          <a class="cancel" href="${orcidInfo.profilePage}">Return to your profile page</a>
+          <a class="cancel" href="${orcidInfo.profilePage}">Return to your ORCID Record page</a>
         </p>
       </form>
     </div>
 </section>
 
-</div> 
+</div>

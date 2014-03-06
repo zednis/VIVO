@@ -14,12 +14,19 @@
         ]
     }
 -->
- 
+<#assign confirmThis = "" /> 
 <#if orcidInfo??>
+    
+    <#list orcidInfo.orcids?keys as key>
+        <#if "no" == orcidInfo.orcids[key]?string("yes","no") >
+            <#assign confirmThis = "Confirm the ID" />
+            </#if>
+    </#list>
+        
     <#if orcidInfo.authorizedToConfirm>
         <script>
             $(document).ready(function(){
-                $('#orcidId a.add-orcidId').replaceWith("<a class='add-orcidId' href='${orcidInfo.orcidUrl}'>Confirm/Create</a>");
+                $('#orcidId a.add-orcidId').replaceWith("<a class='add-orcidId' style='padding-left:20px' href='${orcidInfo.orcidUrl}'><#if orcidInfo.orcids?size == 0>Add an ID<#else>${confirmThis}</#if></a> ");
             });
         </script>
     </#if>

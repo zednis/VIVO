@@ -9,5 +9,20 @@
 
 <freemarker:individual-orcidInterface.ftl> display:hasDataGetter display:orcidIdDataGetter .
 
+<freemarker:orcidConfirm.ftl> display:hasDataGetter display:hasOrcidIdDataGetter .
+
+
 display:orcidIdDataGetter
     a <java:edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter> .
+
+display:hasOrcidIdDataGetter
+    a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.SparqlQueryDataGetter>;
+    display:saveToVar "orcidResults";
+    display:query 
+        """
+        PREFIX vivo: <http://vivoweb.org/ontology/core#>
+        SELECT DISTINCT ?orcidId
+        WHERE {
+            ?individualURI vivo:orcidId ?orcidId .
+        }
+        """ .
