@@ -69,7 +69,7 @@ span.completed {
 <#assign orcidTextTwo = "Adding" />
 <#if (orcidInfo.existingOrcids?size > 0) >
     <#assign orcidTextOne = "confirm your" />
-    <#assign orcidTextTwo = "${orcidTextTwo}" />
+    <#assign orcidTextTwo = "Confirming" />
 </#if>
 <#assign step2dimmed = (["START", "FAILED_PROFILE", "DENIED_PROFILE"]?seq_contains(orcidInfo.progress))?string("dimmed", "") />
 <#assign continueAppears = (["START", "GOT_PROFILE"]?seq_contains(orcidInfo.progress))/>
