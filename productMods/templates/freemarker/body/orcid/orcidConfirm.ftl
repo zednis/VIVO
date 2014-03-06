@@ -67,7 +67,7 @@ span.completed {
 
 <#assign orcidTextOne = "add an" />
 <#assign orcidTextTwo = "Adding" />
-<#if orcidResults?has_content>
+<#if (orcidInfo.existingOrcids?size > 0) >
     <#assign orcidTextOne = "confirm your" />
     <#assign orcidTextTwo = "${orcidTextTwo}" />
 </#if>
