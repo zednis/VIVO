@@ -139,7 +139,7 @@ span.completed {
             <input type="submit" name="submit" value="Continue <#if "START" == orcidInfo.progress>Step 1<#else>Step 2</#if>" class="submit"/>
             or 
           </#if>
-          <a class="cancel" href="${orcidInfo.profilePage}">Return to your ORCID Record page</a>
+          <a class="cancel" href="${orcidInfo.profilePage}">Return to your VIVO profile page</a>
         </p>
       </form>
     </div>
