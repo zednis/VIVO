@@ -2,9 +2,9 @@
 
 package edu.cornell.mannlib.vivo.orcid.controller;
 
-import static edu.cornell.mannlib.orcidclient.actions.ApiAction.READ_PROFILE;
-import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.DENIED_PROFILE;
-import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.FAILED_PROFILE;
+import static edu.cornell.mannlib.orcidclient.actions.ApiAction.AUTHENTICATE;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.DENIED_AUTHENTICATE;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.FAILED_AUTHENTICATE;
 import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PATH_READ_PROFILE;
 
 import java.net.URISyntaxException;
@@ -20,45 +20,45 @@ import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.Res
 
 /**
  * We offered the confirmation screen, and they decided to go ahead. Get
- * authorization to read the profile.
+ * authorization to authenticate them.
  * 
  * We can't assume that they haven't been here before, so they might already
  * have authorized, or denied authorization.
  */
-public class OrcidAuthProfileHandler extends OrcidAbstractHandler {
+public class OrcidAuthAuthenticateHandler extends OrcidAbstractHandler {
 	private static final Log log = LogFactory
-			.getLog(OrcidAuthProfileHandler.class);
+			.getLog(OrcidAuthAuthenticateHandler.class);
 
 	private AuthorizationStatus status;
 
-	public OrcidAuthProfileHandler(VitroRequest vreq) {
+	public OrcidAuthAuthenticateHandler(VitroRequest vreq) {
 		super(vreq);
 	}
 
 	public ResponseValues exec() throws URISyntaxException,
 			OrcidClientException {
-		status = auth.getAuthorizationStatus(READ_PROFILE);
+		status = auth.getAuthorizationStatus(AUTHENTICATE);
 		if (status.isNone()) {
-			return seekAuthorizationForReadProfile();
+			return seekAuthorizationForAuthenticate();
 		} else if (status.isSuccess()) {
 			return redirectToReadProfile();
 		} else if (status.isDenied()) {
-			return showConfirmationPage(DENIED_PROFILE);
+			return showConfirmationPage(DENIED_AUTHENTICATE);
 		} else {
-			return showConfirmationPage(FAILED_PROFILE);
+			return showConfirmationPage(FAILED_AUTHENTICATE);
 		}
 	}
 
-	private ResponseValues seekAuthorizationForReadProfile()
+	private ResponseValues seekAuthorizationForAuthenticate()
 			throws OrcidClientException, URISyntaxException {
-		log.debug("Seeking authorization to read profile.");
+		log.debug("Seeking authorization to authenticate.");
 		String returnUrl = occ.resolvePathWithWebapp(PATH_READ_PROFILE);
-		String seekUrl = auth.seekAuthorization(READ_PROFILE, returnUrl);
+		String seekUrl = auth.seekAuthorization(AUTHENTICATE, returnUrl);
 		return new RedirectResponseValues(seekUrl);
 	}
 
 	private ResponseValues redirectToReadProfile() throws URISyntaxException {
-		log.debug("Already authorized to read profile.");
+		log.debug("Already authorized to authenticate.");
 		return new RedirectResponseValues(
 				occ.resolvePathWithWebapp(PATH_READ_PROFILE));
 	}

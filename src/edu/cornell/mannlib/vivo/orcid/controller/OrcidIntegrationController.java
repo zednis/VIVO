@@ -50,14 +50,14 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 			.getLog(OrcidIntegrationController.class);
 
 	private final static String PATHINFO_CALLBACK = "/callback";
-	private final static String PATHINFO_AUTH_PROFILE = "/getProfileAuth";
+	private final static String PATHINFO_AUTH_AUTHENTICATE = "/getAuthticateAuth";
 	private final static String PATHINFO_READ_PROFILE = "/readProfile";
 	private final static String PATHINFO_AUTH_EXTERNAL_ID = "/authExternalId";
 	private final static String PATHINFO_ADD_EXTERNAL_ID = "/addExternalId";
 
 	public final static String PATH_DEFAULT = "orcid";
 
-	final static String PATH_AUTH_PROFILE = path(PATHINFO_AUTH_PROFILE);
+	final static String PATH_AUTH_AUTHENTICATE = path(PATHINFO_AUTH_AUTHENTICATE);
 	final static String PATH_READ_PROFILE = path(PATHINFO_READ_PROFILE);
 	final static String PATH_AUTH_EXTERNAL_ID = path(PATHINFO_AUTH_EXTERNAL_ID);
 	final static String PATH_ADD_EXTERNAL_ID = path(PATHINFO_ADD_EXTERNAL_ID);
@@ -67,8 +67,6 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 	}
 
 	final static String TEMPLATE_CONFIRM = "orcidConfirm.ftl";
-	final static String TEMPLATE_DENIED = "orcidDenied.ftl";
-	final static String TEMPLATE_FAILED = "orcidFailed.ftl";
 
 	public static final String PROPERTY_EXTERNAL_ID_COMMON_NAME = "orcid.externalIdCommonName";
 	public static final String DEFAULT_EXTERNAL_ID_COMMON_NAME = "VIVO Identifier";
@@ -107,8 +105,8 @@ public class OrcidIntegrationController extends FreemarkerHttpServlet {
 		try {
 			String pathInfo = vreq.getPathInfo();
 			log.debug("Path info: " + pathInfo);
-			if (PATHINFO_AUTH_PROFILE.equals(pathInfo)) {
-				return new OrcidAuthProfileHandler(vreq).exec();
+			if (PATHINFO_AUTH_AUTHENTICATE.equals(pathInfo)) {
+				return new OrcidAuthAuthenticateHandler(vreq).exec();
 			} else if (PATHINFO_READ_PROFILE.equals(pathInfo)) {
 				return new OrcidReadProfileHandler(vreq).exec();
 			} else if (PATHINFO_AUTH_EXTERNAL_ID.equals(pathInfo)) {

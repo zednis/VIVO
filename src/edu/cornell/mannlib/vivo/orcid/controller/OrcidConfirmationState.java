@@ -4,7 +4,7 @@ package edu.cornell.mannlib.vivo.orcid.controller;
 
 import static edu.cornell.mannlib.vivo.orcid.controller.OrcidConfirmationState.Progress.START;
 import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PATH_AUTH_EXTERNAL_ID;
-import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PATH_AUTH_PROFILE;
+import static edu.cornell.mannlib.vivo.orcid.controller.OrcidIntegrationController.PATH_AUTH_AUTHENTICATE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +29,8 @@ import edu.cornell.mannlib.orcidclient.orcidmessage.OrcidProfile;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.UrlBuilder;
 
 /**
- * Keep track of what was requested for the Orcid confirmation.
+ * Keep track of where we are in the Orcid confirmation process; what has been
+ * requested, and what has been returned.
  */
 class OrcidConfirmationState {
 	// ----------------------------------------------------------------------
@@ -56,7 +57,7 @@ class OrcidConfirmationState {
 	// ----------------------------------------------------------------------
 
 	public enum Progress {
-		START, DENIED_PROFILE, FAILED_PROFILE, GOT_PROFILE, ID_ALREADY_PRESENT, DENIED_ID, FAILED_ID, ADDED_ID
+		START, DENIED_AUTHENTICATE, FAILED_AUTHENTICATE, GOT_PROFILE, ID_ALREADY_PRESENT, DENIED_ID, FAILED_ID, ADDED_ID
 	}
 
 	private static final Set<Progress> requiresMessage = EnumSet.of(
@@ -75,7 +76,7 @@ class OrcidConfirmationState {
 		profile = null;
 		profilePageUrl = profileUrl;
 	}
-	
+
 	public void setExistingOrcids(Set<String> existing) {
 		existingOrcids = new HashSet<>(existing);
 	}
@@ -108,7 +109,7 @@ class OrcidConfirmationState {
 	public String getProgressUrl() {
 		switch (progress) {
 		case START:
-			return UrlBuilder.getUrl(PATH_AUTH_PROFILE);
+			return UrlBuilder.getUrl(PATH_AUTH_AUTHENTICATE);
 		case GOT_PROFILE:
 			return UrlBuilder.getUrl(PATH_AUTH_EXTERNAL_ID);
 		default:

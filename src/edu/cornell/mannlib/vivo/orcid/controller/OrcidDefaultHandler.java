@@ -29,7 +29,6 @@ import edu.cornell.mannlib.vitro.webapp.controller.freemarker.UrlBuilder;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.NotAuthorizedResponseValues;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.ResponseValues;
 import edu.cornell.mannlib.vitro.webapp.controller.freemarker.responsevalues.TemplateResponseValues;
-import edu.cornell.mannlib.vivo.orcid.OrcidIdDataGetter;
 
 /**
  * A request came from the "Confirm" button on the individual profile. Get a
@@ -46,7 +45,7 @@ public class OrcidDefaultHandler extends OrcidAbstractHandler {
 		super(vreq);
 	}
 
-	public ResponseValues exec() throws OrcidIllegalStateException {
+	public ResponseValues exec() {
 		try {
 			initializeState();
 			initializeAuthorizationCache();

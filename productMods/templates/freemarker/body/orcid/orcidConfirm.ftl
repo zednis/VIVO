@@ -4,26 +4,26 @@
 The body map contains the orcidInfo structure, which is set up like this:
 
 orcidInfo
-    progress      - a string set to one of these values: START, DENIED_PROFILE, 
-                    FAILED_PROFILE, GOT_PROFILE, ID_ALREADY_PRESENT, DENIED_ID, 
-                    FAILED_ID, ADDED_ID
-    individualUri - the URI of the person
-    profilePage   - the URL of the individual's profile page
-    orcid         - the confirmed ORCID (just xxxx-xxxx-xxxx-xxxx), 
-                    or the empty string.
-    orcidUri      - the confirmed ORCID (full URI), or the empty string.
-    externalIds   - empty if we haven't read their profile. Otherwise, a sequence
-                    of maps, one for each external ID in their profile. These
-                    might include SCOPUS ID, etc. Each map looks like this:
-                    commonName - e.g., "VIVO Cornell"
-                    reference  - e.g., their VIVO localname
-                    uri        - e.g., their VIVO URI
-    hasVivoId     - true, if we have read the profile and they already have 
-                    their VIVO URI as an external ID. False otherwise.
-    existngOrcids - A sequence of the ORCIDs (full URI) that we already associate 
-                    with this individual.
-    progressUrl   - The URL to go to, that will continue this process. If the 
-                    process is complete or has failed, this is empty.
+    progress       - a string set to one of these values: START, DENIED_AUTHENTICATE, 
+                     FAILED_AUTHENTICATE, GOT_PROFILE, ID_ALREADY_PRESENT, DENIED_ID, 
+                     FAILED_ID, ADDED_ID
+    individualUri  - the URI of the person
+    profilePage    - the URL of the individual's profile page
+    orcid          - the confirmed ORCID (just xxxx-xxxx-xxxx-xxxx), 
+                     or the empty string.
+    orcidUri       - the confirmed ORCID (full URI), or the empty string.
+    externalIds    - empty if we haven't read their profile. Otherwise, a sequence
+                     of maps, one for each external ID in their profile. These
+                     might include SCOPUS ID, etc. Each map looks like this:
+                     commonName - e.g., "VIVO Cornell"
+                     reference  - e.g., their VIVO localname
+                     uri        - e.g., their VIVO URI
+    hasVivoId      - true, if we have read the profile and they already have 
+                     their VIVO URI as an external ID. False otherwise.
+    existingOrcids - A sequence of the ORCIDs (full URI) that we already associate 
+                     with this individual.
+    progressUrl    - The URL to go to, that will continue this process. If the 
+                     process is complete or has failed, this is empty.
 
 -->
 
@@ -71,7 +71,7 @@ span.completed {
     <#assign orcidTextOne = "confirm your" />
     <#assign orcidTextTwo = "Confirming" />
 </#if>
-<#assign step2dimmed = (["START", "FAILED_PROFILE", "DENIED_PROFILE"]?seq_contains(orcidInfo.progress))?string("dimmed", "") />
+<#assign step2dimmed = (["START", "FAILED_AUTHENTICATE", "DENIED_AUTHENTICATE"]?seq_contains(orcidInfo.progress))?string("dimmed", "") />
 <#assign continueAppears = (["START", "GOT_PROFILE"]?seq_contains(orcidInfo.progress))/>
 
 <div>
@@ -91,11 +91,11 @@ span.completed {
           <li>VIVO reads your ORCID Record.</li>
           <li>VIVO notes that your ORCID ID is confirmed.</li>
         </ul>
-      <#elseif "DENIED_PROFILE" == orcidInfo.progress>
+      <#elseif "DENIED_AUTHENTICATE" == orcidInfo.progress>
         <h2>Step 1: ${orcidTextTwo} your ORCID ID</h2>
         <p>You denied VIVO's request to read your ORCID profile.</p>
         <p>Confirmation can't continue.</p>
-      <#elseif "FAILED_PROFILE" == orcidInfo.progress>
+      <#elseif "FAILED_AUTHENTICATE" == orcidInfo.progress>
         <h2>Step 1: ${orcidTextTwo} your ORCID ID</h2>
         <p>VIVO failed to read your ORCID profile.</p>
         <p>Confirmation can't continue.</p>
