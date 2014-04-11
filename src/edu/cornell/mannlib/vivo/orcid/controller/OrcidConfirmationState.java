@@ -20,6 +20,9 @@ import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.cornell.mannlib.orcidclient.orcidmessage.ExternalIdentifier;
 import edu.cornell.mannlib.orcidclient.orcidmessage.ExternalIdentifiers;
 import edu.cornell.mannlib.orcidclient.orcidmessage.OrcidBio;
@@ -33,6 +36,10 @@ import edu.cornell.mannlib.vitro.webapp.controller.freemarker.UrlBuilder;
  * requested, and what has been returned.
  */
 class OrcidConfirmationState {
+	private static final Log log = LogFactory
+			.getLog(OrcidConfirmationState.class);
+	
+	
 	// ----------------------------------------------------------------------
 	// The factory
 	// ----------------------------------------------------------------------
@@ -175,6 +182,7 @@ class OrcidConfirmationState {
 
 		OrcidId id = orcidProfile.getOrcidIdentifier();
 		if (id == null) {
+			log.warn("There is no ORCID Identifier in the profile.");
 			return "";
 		}
 
@@ -190,6 +198,7 @@ class OrcidConfirmationState {
 				}
 			}
 		}
+		log.warn("Didn't find the element '' in the ORCID Identifier: " + idElements);
 		return "";
 	}
 
