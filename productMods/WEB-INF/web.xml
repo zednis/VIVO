@@ -391,6 +391,15 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>JenaExportController</servlet-name>
+    <url-pattern>/exportold/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ExportController</servlet-name>
+    <servlet-class>edu.cornell.mannlib.vitro.webapp.controller.admin.ExportController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExportController</servlet-name>
     <url-pattern>/export/*</url-pattern>
   </servlet-mapping>
 
