@@ -1,0 +1,8 @@
+language: java
+jdk:
+- openjdk7
+- oraclejdk7
+- oraclejdk8
+install:
+  - git clone https://github.com/zednis/Vitro.git vitro-core
+  - cp example.build.properties build.properties
