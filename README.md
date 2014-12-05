@@ -6,6 +6,8 @@ VIVO supports editing, searching, browsing and visualizing research activity in 
 
 ## Resources
 
+[![Build Status](https://travis-ci.org/zednis/VIVO.svg?branch=develop)](https://travis-ci.org/zednis/VIVO)
+
 ### Information center at VIVOWEB
 http://vivoweb.org/
 
