@@ -1,6 +1,6 @@
 /* $This file is distributed under the terms of the license in /doc/license.txt$ */
 
-package edu.cornell.mannlib.vitro.webapp.search.documentBuilding;
+package edu.cornell.mannlib.vitro.webapp.searchindex.documentBuilding;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -26,15 +27,16 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.shared.Lock;
 
 import edu.cornell.mannlib.vitro.webapp.beans.Individual;
+import edu.cornell.mannlib.vitro.webapp.modelaccess.ContextModelAccess;
 import edu.cornell.mannlib.vitro.webapp.modules.searchEngine.SearchInputDocument;
 import edu.cornell.mannlib.vitro.webapp.search.VitroSearchTermNames;
-import edu.cornell.mannlib.vitro.webapp.search.documentBuilding.DocumentModifier;
+import edu.cornell.mannlib.vitro.webapp.utils.configuration.ContextModelsUser;
 
 
-public class CalculateParameters implements DocumentModifier {
+public class CalculateParameters implements DocumentModifier, ContextModelsUser {
 
     private boolean shutdown = false;
-	private Dataset dataset;
+	private volatile Dataset dataset;
    // public static int totalInd=1;
     
     private static final String prefix = "prefix owl: <http://www.w3.org/2002/07/owl#> "
@@ -60,15 +62,11 @@ public class CalculateParameters implements DocumentModifier {
      
     private static Log log = LogFactory.getLog(CalculateParameters.class);
     
-	public CalculateParameters(Dataset dataset){
-		 this.dataset =dataset;
-		// new Thread(new TotalInd(this.dataset,totalCountQuery)).start();
+	@Override
+	public void setContextModels(ContextModelAccess models) {
+		 this.dataset = DatasetFactory.create(models.getOntModel());
 	}
-	
-	public CalculateParameters(){
-		super();
-	}
-	
+
 	public float calculateBeta(String uri){
 		float beta=0;
 		int Conn=0; 
@@ -241,7 +239,7 @@ public class CalculateParameters implements DocumentModifier {
 	}
    
 	@Override
-	public void modifyDocument(Individual individual, SearchInputDocument doc, StringBuffer addUri) {
+	public void modifyDocument(Individual individual, SearchInputDocument doc) {
 		// TODO Auto-generated method stub
 		 // calculate beta value.  
         log.debug("Parameter calculation starts..");
@@ -256,6 +254,13 @@ public class CalculateParameters implements DocumentModifier {
 	public void shutdown(){
         shutdown=true;
     }
+	
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "[]";
+	}
+
 }
 
 class TotalInd implements Runnable{

@@ -1,10 +1,9 @@
 /* $This file is distributed under the terms of the license in /doc/license.txt$ */
 
-package edu.cornell.mannlib.vitro.webapp.search.indexing;
+package edu.cornell.mannlib.vitro.webapp.searchindex.indexing;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -19,14 +18,15 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 import edu.cornell.mannlib.vitro.webapp.dao.jena.QueryUtils;
+import edu.cornell.mannlib.vitro.webapp.modelaccess.ContextModelAccess;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
-import edu.cornell.mannlib.vitro.webapp.search.beans.StatementToURIsToUpdate;
+import edu.cornell.mannlib.vitro.webapp.utils.configuration.ContextModelsUser;
 
 /**
  * If the property of a VCard object is changed, we should re-index the owner of
  * that VCard.
  */
-public class AdditionalUrisForVCards implements StatementToURIsToUpdate {
+public class AdditionalUrisForVCards implements IndexingUriFinder, ContextModelsUser {
 	private static final Log log = LogFactory
 			.getLog(AdditionalUrisForVCards.class);
 
@@ -39,10 +39,11 @@ public class AdditionalUrisForVCards implements StatementToURIsToUpdate {
 			+ "  ?uri obo:ARG_2000028 ?contactInfo . \n " //
 			+ "}";
 
-	private final RDFService rdfService;
-
-	public AdditionalUrisForVCards(RDFService rdfService) {
-		this.rdfService = rdfService;
+    private volatile RDFService rdfService;
+    
+    @Override
+	public void setContextModels(ContextModelAccess models) {
+    	this.rdfService = models.getRDFService();
 	}
 
 	@Override
@@ -115,8 +116,13 @@ public class AdditionalUrisForVCards implements StatementToURIsToUpdate {
 	}
 
 	@Override
-	public void endIndxing() {
+	public void endIndexing() {
 		// Nothing to tear down.
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
 	}
 
 }

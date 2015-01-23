@@ -1,6 +1,6 @@
 /* $This file is distributed under the terms of the license in /doc/license.txt$ */
 
-package edu.cornell.mannlib.vitro.webapp.search.indexing;
+package edu.cornell.mannlib.vitro.webapp.searchindex.indexing;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,33 +21,31 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 import edu.cornell.mannlib.vitro.webapp.dao.jena.QueryUtils;
+import edu.cornell.mannlib.vitro.webapp.modelaccess.ContextModelAccess;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.RDFService;
-import edu.cornell.mannlib.vitro.webapp.search.beans.StatementToURIsToUpdate;
+import edu.cornell.mannlib.vitro.webapp.utils.configuration.ContextModelsUser;
 
-public class AdditionalURIsForContextNodes implements StatementToURIsToUpdate {
-
-    private final RDFService rdfService;
-	private Set<String> alreadyChecked;
-	private long accumulatedTime = 0;
+public class AdditionalURIsForContextNodes implements IndexingUriFinder, ContextModelsUser {
+	private Log log = LogFactory.getLog(AdditionalURIsForContextNodes.class);
 	
     private static final List<String> multiValuedQueriesForAgent = new ArrayList<String>();	
 	private static final String multiValuedQueryForInformationContentEntity;
 	private static final List<String> multiValuedQueriesForRole = new ArrayList<String>();
 	private static final List<String>queryList;	
 	
-	private Log log = LogFactory.getLog(AdditionalURIsForContextNodes.class);
+	private final Set<String> alreadyChecked = Collections.synchronizedSet(new HashSet<String>());
+    private volatile RDFService rdfService;
     
     
-    public AdditionalURIsForContextNodes( RDFService rdfService){
-        this.rdfService = rdfService;
-    }
+    @Override
+	public void setContextModels(ContextModelAccess models) {
+    	this.rdfService = models.getRDFService();
+	}
     
     @Override
     public List<String> findAdditionalURIsToIndex(Statement stmt) {
                 
         if( stmt != null ){
-            long start = System.currentTimeMillis();
-            
             List<String>urisToIndex = new ArrayList<String>();
             if(stmt.getSubject() != null && stmt.getSubject().isURIResource() ){        
                 String subjUri = stmt.getSubject().getURI();
@@ -65,7 +63,6 @@ public class AdditionalURIsForContextNodes implements StatementToURIsToUpdate {
                 }
             }
             
-            accumulatedTime += (System.currentTimeMillis() - start ) ;
             return urisToIndex;
         }else{
             return Collections.emptyList();
@@ -74,14 +71,12 @@ public class AdditionalURIsForContextNodes implements StatementToURIsToUpdate {
     
     @Override
     public void startIndexing() { 
-        alreadyChecked = new HashSet<String>();
-        accumulatedTime = 0L;
+        alreadyChecked.clear();
     }
 
     @Override
-    public void endIndxing() {
-        log.debug( "Accumulated time for this run of the index: " + accumulatedTime + " msec");
-        alreadyChecked = null;        
+    public void endIndexing() {
+    	// Nothing to clear
     }
     
     protected List<String> findAdditionalURIsToIndex(String uri) {    	        
@@ -764,6 +759,11 @@ public class AdditionalURIsForContextNodes implements StatementToURIsToUpdate {
 	    tmpList.addAll(queriesForPosition());
 	    
         queryList = Collections.unmodifiableList(tmpList);
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
 	}
 
 }
